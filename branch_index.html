@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<head>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/d3-flame-graph@4.1.3/dist/d3-flamegraph.css">
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <h1>Coverage report</h1>
+  <p>Statistics for branch <a href="https://github.com/esp32-open-mac/esp32-open-mac/commits/$BRANCH">$BRANCH</a> built on $DATE, commit <a href="https://github.com/esp32-open-mac/esp32-open-mac/commit/$COMMIT">$COMMIT</a>
+  <p>The Wi-Fi peripheral needs to be initialized before we can send/receive packets.
+  This is implemented in the binary blobs Espressif distributes, so to have a completely blobless Wi-Fi implementation, we need to implement this initialization ourselves as well.
+  To get a scope of the challenge ahead of us, we used <a href="https://github.com/esp32-open-mac/qemu">our patched QEMU</a> to trace the execution flow of the Wi-Fi peripheral hardware initialization: every time the proprietary code accesses a memory-mapped register,
+  a stacktrace is generated that logs the whole callstack. This can then be used to see what functions access which hardware registers.</p>
+
+  <p>Below is a flame graph of the whole hardware initialization. The functions/functionality that we already implemented is colored in green. Note that the width of each bar is not linear to the amount of memory accesses, but rescaled with the function <code>x^0.4</code></code></p>
+  
+  <p>You can click on a function to focus on that function. You can hover over a function to see how many IO accesses it (and it children) do.</p>
+  <div id="chart"></div>
+  <script type="text/javascript" src="https://d3js.org/d3.v7.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/d3-flame-graph@4.1.3/dist/d3-flamegraph.min.js"></script>
+  <script type="text/javascript">
+  var chart = flamegraph().width(1690).label(function(d) {
+    return "name: " + d.data.name + ", memory IO accesses: " + d.data.mem_accesses;
+  })
+  .setColorMapper(function(d, originalColor) {
+    return d.data.implemented ? "LimeGreen" : "Tomato";
+  });
+
+  d3.json("./data.json")
+    .then(data => {
+      d3.select("#chart")
+        .datum(data)
+        .call(chart);
+    }).catch(error => {
+      return console.warn(error);
+    });
+  </script>
+</body>
