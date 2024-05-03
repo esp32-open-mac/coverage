@@ -3,7 +3,7 @@ import datetime
 
 branchname = sys.argv[1]
 commit = sys.argv[2]
-date = datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%dT%H:%M:%S%z")
+date = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%S%z")
 
 replacements = {
     'BRANCH': branchname,
