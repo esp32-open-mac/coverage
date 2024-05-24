@@ -1,6 +1,10 @@
 name: Github Pages
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "51 5,17 * * *"
 
 permissions:
   contents: read
